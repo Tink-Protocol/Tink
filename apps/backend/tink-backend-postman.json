@@ -1,0 +1,116 @@
+{
+  "info": {
+    "name": "Tink Backend API",
+    "_postman_id": "tink-backend-collection",
+    "description": "Postman collection for Tink hackathon backend endpoints.\n\nInstructions:\n1. No authentication is required for MVP endpoints.\n2. All requests use Content-Type: application/json when sending a body.\n3. Replace 'localhost:4000' with deployed backend URL when ready.\n4. Use example 'session' and 'merchantId' values to test.\n\nEndpoints included:\n- GET /api/resource → returns 402 Payment Required payload for a tip session.\n- POST /api/verify → verifies tip payment and returns receipt.\n- GET /api/merchant/:id/tips → lists all tips for a merchant.\n- GET /api/merchant/:id/split?total= → simulates tip split distribution.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Tip Resource (402 Payload)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4000/api/resource?session=test123&merchantId=demo1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["api", "resource"],
+          "query": [
+            { "key": "session", "value": "test123" },
+            { "key": "merchantId", "value": "demo1" }
+          ]
+        },
+        "description": "Request a tip resource. Server responds with 402 and payment payload for the session."
+      },
+      "response": [
+        {
+          "code": 402,
+          "body": "{\n  \"code\": 402,\n  \"message\": \"Payment required to view receipt\",\n  \"payment\": {\n    \"amount\": \"2.50\",\n    \"currency\": \"USDC\",\n    \"network\": \"solana-devnet\",\n    \"pay_to\": \"FKe...walletAddress\",\n    \"memo\": \"tip:demo1:test123\",\n    \"expires_at\": \"2025-11-03T14:31:08.970Z\"\n  },\n  \"session\": \"test123\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Verify Payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"session\": \"test123\",\n  \"tx_hash\": \"abc123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4000/api/verify",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["api", "verify"]
+        },
+        "description": "Verify a tip payment using session and transaction hash. Returns confirmed receipt or error."
+      },
+      "response": [
+        {
+          "code": 200,
+          "body": "{\n  \"status\": \"confirmed\",\n  \"receipt_id\": \"r_test123\"\n}"
+        },
+        {
+          "code": 400,
+          "body": "{\n  \"error\": \"Missing session or tx_hash\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Merchant Tips List",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4000/api/merchant/demo1/tips",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["api", "merchant", "demo1", "tips"]
+        },
+        "description": "Get all tips for a merchant. Returns an array of tip objects with status, amount, and tx_hash."
+      },
+      "response": [
+        {
+          "code": 200,
+          "body": "{\n  \"tips\": [\n    {\n      \"session\": \"test123\",\n      \"merchantId\": \"demo1\",\n      \"amount\": \"2.50\",\n      \"currency\": \"USDC\",\n      \"status\": \"confirmed\",\n      \"created_at\": \"2025-11-03T13:31:08.971Z\",\n      \"tx_hash\": \"abc123\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Merchant Split Simulation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4000/api/merchant/demo1/split?total=2.50",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["api", "merchant", "demo1", "split"],
+          "query": [
+            { "key": "total", "value": "2.50" }
+          ]
+        },
+        "description": "Simulate how a tip will be split among FOH, BOH, and Bar. Returns split values and digest for proof."
+      },
+      "response": [
+        {
+          "code": 200,
+          "body": "{\n  \"total\": 2.5,\n  \"split\": {\n    \"FOH\": 1.5,\n    \"BOH\": 0.75,\n    \"Bar\": 0.25\n  },\n  \"digest\": \"07f5c809367e2b66f1526ed9e50890ca65755087714b3fd2dd36c06deee96d4a\"\n}"
+        },
+        {
+          "code": 400,
+          "body": "{\n  \"error\": \"Invalid total value\"\n}"
+        }
+      ]
+    }
+  ]
+}
+
