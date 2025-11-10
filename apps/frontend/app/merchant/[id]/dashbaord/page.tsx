@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "../../../components/ui/Button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table";
-import { Slider } from "../../../components/ui/slider";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table.tsx";
+import { Slider } from "../../../components/ui/slider.tsx";
 import { Loader2, Download, ExternalLink, DollarSign, Users, TrendingUp } from "lucide-react";
 
 interface Tip {
