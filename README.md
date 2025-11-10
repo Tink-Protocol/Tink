@@ -108,6 +108,8 @@ sequenceDiagram
     end
 ```
 
+## Tech Stack
+
 ## MVP Scope
 
 * One-click Tip Link / QR flow
