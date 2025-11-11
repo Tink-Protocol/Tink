@@ -123,9 +123,6 @@ sequenceDiagram
     TinkServer-->>User: 5. Verify + Return Receipt (on-chain proof, split info)
 ```
 
-
-## Tech Stack
-
 ## MVP Scope
 
 * One-click Tip Link / QR flow
@@ -149,4 +146,5 @@ Stretch: AI suggestion engine and hybrid on/off-chain split automation.
 ## Conclusion
 Tink is building an internet-native tipping layer powered by real-time micro-payments, transparent reward distribution, and autonomous agent support.
 It transforms tipping into a programmable primitive — allowing both humans and AI agents to express appreciation instantly, fairly, and verifiably.
+
 
