@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const sequelize = new Sequelize(
-  process.env.DB_URL || "postgres://postgres:password@localhost:5432/tink",
+  process.env.DATABASE_URL ||
+    "postgres://postgres:password@localhost:5432/tink",
   {
     logging: false,
     dialectOptions: {
