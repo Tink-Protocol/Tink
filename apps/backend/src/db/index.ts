@@ -8,14 +8,12 @@ export const sequelize = new Sequelize(
   {
     logging: false,
     dialectOptions: {
-      // If you need SSL for remote Postgres, set env var DB_SSL=true
       ssl:
         process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
     },
   }
 );
 
-// Initialize DB
 export async function initDB() {
   try {
     await sequelize.authenticate();
