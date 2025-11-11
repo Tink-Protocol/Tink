@@ -245,9 +245,7 @@
     text-decoration: none;
   }
 
-  a:hover {
-    text-decoration: underline;
-  }
+
 }
 
 /* Hide Next.js error overlay portal */

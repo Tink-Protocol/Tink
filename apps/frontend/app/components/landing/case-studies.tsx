@@ -1,29 +1,4 @@
-import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
 
-// Replicated from the site's SVG for the Gong logo
-const GongLogo = () => (
-  <svg
-    width="86"
-    height="24"
-    viewBox="0 0 86 24"
-    fill="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-    className="text-black"
-    aria-label="Gong logo"
-  >
-    <path d="M74.88 23.36a9.23 9.23 0 0 1-5.63-1.78l-.3-.2.32-.2L81.04 12l-11.77-9.18-.32-.2.3.2a9.24 9.24 0 0 1 11.26 13.04 9.17 9.17 0 0 1-5.63 7.3z"></path>
-    <path d="M63.63 21.06a9.24 9.24 0 0 1-9.2-7.29 9.24 9.24 0 0 1 7.3-9.2 9.23 9.23 0 0 1 9.2 7.29 9.23 9.23 0 0 1-7.3 9.2zM27 23.36a9.23 9.23 0 0 1-5.63-1.78l-.3-.2.32-.2L33.16 12 21.39 2.82l-.32-.2.3.2A9.24 9.24 0 0 1 32.63.8a9.23 9.23 0 0 1 5.63 15.22 9.17 9.17 0 0 1-11.26 7.34z"></path>
-    <path d="M15.75 21.06a9.24 9.24 0 0 1-9.2-7.29A9.24 9.24 0 0 1 13.84 4.57a9.23 9.23 0 0 1 9.2 7.29 9.23 9.23 0 0 1-7.3 9.2zM45.33 21.05a9.23 9.23 0 0 1-9.2-7.28 9.23 9.23 0 0 1 7.29-9.2 9.23 9.23 0 0 1 9.2 7.29 9.24 9.24 0 0 1-7.3 9.2zM85.49 11.43a.5.5 0 0 0-.49.5v.14a.5.5 0 0 0 .5.5h.13a.5.5 0 0 0 .49-.5v-.14a.5.5 0 0 0-.5-.5h-.13z"></path>
-  </svg>
-);
-
-const ReadCaseStudyLink = () => (
-  <div className="text-base font-semibold text-primary flex items-center gap-2 group-hover:underline">
-    Read case study
-    <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-in-out group-hover:translate-x-1" />
-  </div>
-);
 
 const CaseStudiesSection = () => {
   return (
