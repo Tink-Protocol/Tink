@@ -4,30 +4,25 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Use Railway's DATABASE_URL if available, fallback to local DB
-const connectionString =
-  process.env.DATABASE_URL ||
-  process.env.DB_URL ||
-  "postgres://postgres:password@localhost:5432/tink";
-
-// Enable SSL if DB_SSL=true
-const sequelize = new Sequelize(connectionString, {
-  logging: false,
-  dialectOptions: {
-    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
-  },
-});
-
-export const db = sequelize;
+export const sequelize = new Sequelize(
+  process.env.DB_URL || "postgres://postgres:password@localhost:5432/tink",
+  {
+    logging: false,
+    dialectOptions: {
+      ssl:
+        process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
+    },
+  }
+);
 
 export async function initDB() {
   try {
     await sequelize.authenticate();
-    console.log("✅ Database connected");
+    console.log("DB connected ✅");
     await sequelize.sync({ alter: true });
-    console.log("✅ Database synced");
+    console.log("DB synced ✅");
   } catch (err) {
-    console.error("❌ DB connection failed", err);
+    console.error("DB connection failed ❌", err);
     throw err;
   }
 }
