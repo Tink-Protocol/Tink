@@ -1,4 +1,3 @@
-// src/index.ts
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -13,11 +12,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+const SOLANA_NETWORK = process.env.SOLANA_NETWORK || "devnet";
+
 app.use(cors());
 app.use(express.json());
 app.use("/pos", posRouter);
 
-// Helpers
 function generateReceiptId(session: string) {
   return `r_${session}`;
 }
@@ -26,22 +26,19 @@ function generateDigest(obj: any) {
   return crypto.createHash("sha256").update(JSON.stringify(obj)).digest("hex");
 }
 
-// Build x402 payment payload
 function buildPaymentPayload(
   session: string,
   merchantId: string,
   amount: number
 ) {
-  const recipient =
-    process.env.RECIPIENT_WALLET ||
-    "seFkxFkXEY9JGEpCyPfCWTuPZG9WK6ucf95zvKCfsRX";
+  const recipient = process.env.MERCHANT_WALLET!;
   return {
     code: 402,
     message: "Payment required to complete request",
     payment: {
       amount,
       currency: "USDC",
-      network: "solana-devnet",
+      network: SOLANA_NETWORK,
       pay_to: recipient,
       token_mint: USDC_MINT.toBase58(),
       memo: `tip:${merchantId}:${session}`,
@@ -51,7 +48,6 @@ function buildPaymentPayload(
   };
 }
 
-// Middleware: validate session and amount
 function validateResource(
   req: express.Request,
   res: express.Response,
@@ -62,7 +58,6 @@ function validateResource(
   next();
 }
 
-// GET /api/resource
 app.get("/api/resource", validateResource, async (req, res) => {
   const session = (req.query.session as string) || `demo_${Date.now()}`;
   const merchantId = (req.query.merchantId as string) || "demo_merchant";
@@ -82,7 +77,6 @@ app.get("/api/resource", validateResource, async (req, res) => {
   res.status(402).json(payload);
 });
 
-// POST /api/verify
 app.post("/api/verify", async (req, res) => {
   const { session, tx_hash } = req.body as {
     session?: string;
@@ -95,9 +89,7 @@ app.post("/api/verify", async (req, res) => {
   const tip = await Tip.findOne({ where: { session } });
   if (!tip) return res.status(404).json({ error: "Tip session not found" });
 
-  const recipient =
-    process.env.RECIPIENT_WALLET ||
-    "seFkxFkXEY9JGEpCyPfCWTuPZG9WK6ucf95zvKCfsRX";
+  const recipient = process.env.MERCHANT_WALLET!;
   const expectedAmount = parseFloat(tip.amount);
 
   const result = await verifyTransaction(tx_hash, expectedAmount, recipient);
@@ -123,14 +115,12 @@ app.post("/api/verify", async (req, res) => {
   });
 });
 
-// Merchant tips
 app.get("/api/merchant/:id/tips", async (req, res) => {
   const merchantId = req.params.id;
   const tips = await Tip.findAll({ where: { merchantId } });
   res.json({ tips });
 });
 
-// Split calculation
 app.get("/api/merchant/:id/split", (req, res) => {
   const total = parseFloat((req.query.total as string) || "0") || 0;
   const split = {
@@ -142,17 +132,14 @@ app.get("/api/merchant/:id/split", (req, res) => {
   res.json({ total, split, digest });
 });
 
-// Health
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 
-// --- TEST HARNESS (Optional) ---
-// Call this endpoint to simulate a tip flow on the backend without frontend
+// Test harness
 app.get("/api/test-flow", async (_req, res) => {
   const session = `test_${Date.now()}`;
   const merchantId = "demo_merchant";
   const amount = 0.5;
 
-  // Step 1: create tip
   const tip = await Tip.create({
     session,
     merchantId,
@@ -162,19 +149,12 @@ app.get("/api/test-flow", async (_req, res) => {
     created_at: new Date(),
   });
 
-  // Step 2: build payment payload
   const payload = buildPaymentPayload(session, merchantId, amount);
   (payload as any).ai_suggestion = suggestTip(amount);
 
-  res.json({
-    message: "Simulated backend tip flow",
-    session,
-    tip,
-    payload,
-  });
+  res.json({ message: "Simulated backend tip flow", session, tip, payload });
 });
 
-// Start server after DB init
 initDB()
   .then(() =>
     app.listen(PORT, () =>

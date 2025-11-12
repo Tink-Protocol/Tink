@@ -1,19 +1,14 @@
-// src/db/index.ts
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-export const sequelize = new Sequelize(
-  process.env.DB_URL || "postgres://postgres:password@localhost:5432/tink",
-  {
-    logging: false,
-    dialectOptions: {
-      ssl:
-        process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
-    },
-  }
-);
+export const sequelize = new Sequelize(process.env.DATABASE_URL!, {
+  logging: false,
+  dialectOptions: {
+    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
+  },
+});
 
 export async function initDB() {
   try {

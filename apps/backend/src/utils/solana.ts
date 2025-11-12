@@ -5,7 +5,6 @@ import {
   Keypair,
   TransactionInstruction,
   ParsedInstruction,
-  PartiallyDecodedInstruction,
   Signer,
 } from "@solana/web3.js";
 import dotenv from "dotenv";
@@ -15,7 +14,7 @@ dotenv.config();
 const RPC_URL = process.env.SOLANA_RPC || "https://api.devnet.solana.com";
 export const connection = new Connection(RPC_URL, { commitment: "confirmed" });
 
-// Devnet USDC mint
+// USDC mint on Solana devnet/mainnet
 export const USDC_MINT = new PublicKey(
   process.env.USDC_MINT || "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
 );
@@ -31,7 +30,6 @@ export async function verifyTransaction(
   try {
     if (!txSig) return { ok: false, details: "Missing txSig" };
 
-    // Use parsed transaction for safe instruction access
     const tx = await connection.getParsedTransaction(txSig, "confirmed");
     if (!tx) return { ok: false, details: "Transaction not found (yet)" };
 
@@ -41,7 +39,6 @@ export async function verifyTransaction(
 
     let receivedAtomic = BigInt(0);
 
-    // Check post/pre token balances first
     for (const postEntry of post) {
       const preEntry = pre.find(
         (p) => p.accountIndex === postEntry.accountIndex
@@ -53,7 +50,6 @@ export async function verifyTransaction(
       }
     }
 
-    // Fallback: parse parsed instructions (SPL token transfer)
     if (receivedAtomic === BigInt(0) && tx.transaction.message.instructions) {
       const instructions = tx.transaction.message
         .instructions as ParsedInstruction[];
@@ -83,18 +79,19 @@ export async function verifyTransaction(
 }
 
 /**
- * Anchor a digest on-chain using a service keypair (Memo program)
+ * Anchor a digest on-chain using Memo program
  */
 export async function anchorDigest(digest: string): Promise<string | null> {
   try {
-    const serviceSecret = process.env.SERVICE_SECRET_KEY;
+    const serviceSecret = process.env.ANCHOR_KEYPAIR;
     if (!serviceSecret) {
-      console.log("No SERVICE_SECRET_KEY; skipping anchor.");
+      console.log("No ANCHOR_KEYPAIR; skipping anchor.");
       return null;
     }
 
-    const arr = JSON.parse(serviceSecret) as number[];
-    const keypair = Keypair.fromSecretKey(Uint8Array.from(arr));
+    const keypair = Keypair.fromSecretKey(
+      Uint8Array.from(JSON.parse(serviceSecret))
+    );
 
     const memoProgramId = new PublicKey(
       "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
@@ -110,7 +107,6 @@ export async function anchorDigest(digest: string): Promise<string | null> {
     const { blockhash } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
 
-    // ✅ Correct: pass single signer directly
     tx.sign(keypair as Signer);
 
     const raw = tx.serialize();

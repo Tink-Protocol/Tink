@@ -21,7 +21,7 @@ Tip.init(
     },
     session: { type: DataTypes.STRING, allowNull: false, unique: true },
     merchantId: { type: DataTypes.STRING, allowNull: false },
-    amount: { type: DataTypes.STRING, allowNull: false }, // store as string for safety
+    amount: { type: DataTypes.STRING, allowNull: false },
     currency: { type: DataTypes.STRING, allowNull: false },
     status: {
       type: DataTypes.ENUM("pending", "confirmed", "failed"),
